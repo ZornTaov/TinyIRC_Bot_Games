@@ -200,8 +200,14 @@ function onBingoJoin(server, to, cmd, argv, nuh)
 			bingo.addBingoPlayer(nuh.nick)
 			bot_sendreply(server, to, nuh.nick, nuh.nick .. " has joined the game!")
 			player = bingo.getPlayers()[nuh.nick]
+			bot_sendreply(server, nuh.nick, nuh.nick, "---------------")
+			bot_sendreply(server, nuh.nick, nuh.nick, "B  I  N  G  O")
 			for i=1,5 do
-				bot_sendreply(server, nuh.nick, nuh.nick, table.concat(player[i], " "))
+				line = ""
+				for j=1,5 do
+					line = line .. player[j][i] .. " "
+				end
+				bot_sendreply(server, nuh.nick, nuh.nick, line)
 			end
 			
 		else
@@ -244,8 +250,13 @@ function onBingoCheck(server, to, cmd, argv, nuh)
 		if bingo.gameplaying then
 			bot_sendreply(server, nuh.nick, nuh.nick, "---------------")
 			card = bingo.showcard(nuh.nick)
+			bot_sendreply(server, nuh.nick, nuh.nick, "B  I  N  G  O")
 			for i=1,5 do
-				bot_sendreply(server, nuh.nick, nuh.nick, table.concat(card[i], " "))
+				line = ""
+				for j=1,5 do
+					line = line .. card[j][i] .. " "
+				end
+				bot_sendreply(server, nuh.nick, nuh.nick, line)
 			end
 		else
 			bot_sendreply(server, to, nuh.nick, "No game has started! Use !bingo_start then !bingo_join")

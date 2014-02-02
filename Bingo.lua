@@ -31,23 +31,15 @@ end
 
 local bingoSheet = {}
 local called = {}
-a = {"B", "I", "N", "G", "O"}
 local players = {}
 
 function bingo.fillSheet()
 	print("________________________")
 	for i=1, 75 do
-		bingoSheet[i] = a[bingo.round(i/15+.5)] .. i
+		bingoSheet[i] = i
 	end
 	bingo.shuffle(bingoSheet)
 	print(table.concat( bingoSheet, ", " ))
-	if debugbingo then
-		for i=1, 73 do
-			print(bingoSheet[1])
-			table.remove(bingoSheet, 1)
-			
-		end
-	end
 end
 
 function bingo.addBingoPlayer(nick)
@@ -66,11 +58,11 @@ function bingo.addBingoPlayer(nick)
 		mt[i] = {}
 		bingo.shuffle(cardTableDummy[i])
 		for j=1,5 do
-			mt[i][j] = a[i] .. cardTableDummy[i][1]
+			mt[i][j] = cardTableDummy[i][1]
 			table.remove(cardTableDummy[i], 1)
 		end
 	end
-	mt[3][3] = "free"
+	mt[3][3] = "##"
 	players[nick] = mt
 	for i=1,5 do
 		print(table.concat(players[nick][i], ", ") .. "\n")
@@ -87,12 +79,12 @@ end
 
 function bingo.checkcard(nick)
 	win = false
-	print(table.concat(called, ", "))
+	--print(table.concat(called, ", "))
 	--check rows
 	for i=1,5 do
 		ding = 0
 		for j=1,5 do
-			if bingo.findMe(called, players[nick][i][j]) or players[nick][i][j] == "free" then 
+			if called[players[nick][i][j]] or players[nick][i][j] == "##" then 
 				ding = ding + 1
 			end
 		end
@@ -106,7 +98,7 @@ function bingo.checkcard(nick)
 		if win then break end
 		ding = 0
 		for j=1,5 do
-			if bingo.findMe(called, players[nick][j][i]) or players[nick][j][i] == "free" then 
+			if called[players[nick][j][i]] or players[nick][j][i] == "##" then 
 				ding = ding + 1
 			end
 		end
@@ -119,7 +111,7 @@ function bingo.checkcard(nick)
 	if win then return win end
 	ding = 0
 	for i=1,5 do
-		if bingo.findMe(called, players[nick][i][i]) or players[nick][i][i] == "free" then 
+		if called[players[nick][i][i]] or players[nick][i][i] == "##" then 
 			ding = ding + 1
 		end
 	end
@@ -129,7 +121,7 @@ function bingo.checkcard(nick)
 	if win then return win end
 	ding = 0
 	for i=1,5 do
-		if bingo.findMe(called, players[nick][i][6-i]) or players[nick][i][6-i] == "free" then 
+		if called[players[nick][i][6-i]] or players[nick][i][6-i] == "##" then 
 			ding = ding + 1
 		end
 	end
@@ -144,7 +136,7 @@ function bingo.showcard(nick)
 	
 	for i=1,5 do
 		for j=1,5 do
-			if bingo.findMe(called, card[i][j]) or card[i][j] == "free" then 
+			if called[card[i][j]] or card[i][j] == "##" then 
 				card[i][j] = "(" .. card[i][j] .. ")"
 			end
 		end
@@ -158,7 +150,7 @@ function bingo.draw()
 		return false
 	end
 	print(bingoSheet[1])
-	table.insert(called, bingoSheet[1])
+	called[bingoSheet[1]] = true
 	--print(table.concat(called, ", ") .. " called table")
 	call = bingoSheet[1]
 	table.remove(bingoSheet, 1)
