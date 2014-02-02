@@ -31,7 +31,12 @@ end
 
 local bingoSheet = {}
 local called = {}
+for i=1, 75 do
+	called[i] = false
+end
+
 local players = {}
+a = {"B", "I", "N", "G", "O"}
 
 function bingo.fillSheet()
 	print("________________________")
@@ -39,7 +44,9 @@ function bingo.fillSheet()
 		bingoSheet[i] = i
 	end
 	bingo.shuffle(bingoSheet)
-	print(table.concat( bingoSheet, ", " ))
+	if debugbingo then
+		print(table.concat( bingoSheet, ", " ))
+	end
 end
 
 function bingo.addBingoPlayer(nick)
@@ -64,8 +71,10 @@ function bingo.addBingoPlayer(nick)
 	end
 	mt[3][3] = "##"
 	players[nick] = mt
-	for i=1,5 do
-		print(table.concat(players[nick][i], ", ") .. "\n")
+	if debugbingo then
+		for i=1,5 do
+			print(table.concat(players[nick][i], ", ") .. "\n")
+		end
 	end
 end
 
@@ -78,69 +87,81 @@ function getNumPlayers()
 end
 
 function bingo.checkcard(nick)
-	win = false
 	--print(table.concat(called, ", "))
+	if debugbingo then
+		for k,v in ipairs(called) do
+			print(k .. ": " .. tostring(v))
+		end
+	end
 	--check rows
 	for i=1,5 do
 		ding = 0
 		for j=1,5 do
-			if called[players[nick][i][j]] or players[nick][i][j] == "##" then 
+			if (called[players[nick][i][j]] ~= nil and called[players[nick][i][j]]) or players[nick][i][j] == "##" then 
 				ding = ding + 1
 			end
 		end
 		if ding == 5 then 
-			win = true 
-			break
+			return true
 		end
 	end
 	--check columns
 	for i=1,5 do
-		if win then break end
 		ding = 0
 		for j=1,5 do
-			if called[players[nick][j][i]] or players[nick][j][i] == "##" then 
+			if (called[players[nick][j][i]] ~= nil and called[players[nick][j][i]]) or players[nick][j][i] == "##" then 
 				ding = ding + 1
 			end
 		end
 		if ding == 5 then 
-			win = true 
-			break
+			return true
 		end
 	end
 	--check cross
-	if win then return win end
 	ding = 0
 	for i=1,5 do
-		if called[players[nick][i][i]] or players[nick][i][i] == "##" then 
+		if (called[players[nick][i][i]] ~= nil and called[players[nick][i][i]]) or players[nick][i][i] == "##" then 
 			ding = ding + 1
 		end
 	end
 	if ding == 5 then 
-		win = true 
+		return true
 	end
-	if win then return win end
 	ding = 0
 	for i=1,5 do
-		if called[players[nick][i][6-i]] or players[nick][i][6-i] == "##" then 
+		if (called[players[nick][i][6-i]] ~= nil and called[players[nick][i][6-i]]) or players[nick][i][6-i] == "##" then 
 			ding = ding + 1
 		end
 	end
 	if ding == 5 then 
-		win = true 
+		return true 
 	end
-	return win
+	return false
 end
 
 function bingo.showcard(nick)
-	local card = players[nick]
+
+	card = {}
+	for i=1, 5 do
+		card[i] = {}
+		for j,x in pairs(players[nick][i]) do card[i][j] = x end
+	end
 	
 	for i=1,5 do
 		for j=1,5 do
+			spaaaaaace = ""
+			if type(card[i][j]) == 'number' and card[i][j] < 10 then 
+				spaaaaaace = " " 
+			end	
 			if called[card[i][j]] or card[i][j] == "##" then 
-				card[i][j] = "(" .. card[i][j] .. ")"
+				card[i][j] = "\002\0034 " .. spaaaaaace .. card[i][j] .. "\003\002"
+			else
+				card[i][j] = " " .. spaaaaaace .. card[i][j]
 			end
 		end
 	end
+	
+	spaaaaaace = ""
 	return card
 end
 
@@ -154,7 +175,7 @@ function bingo.draw()
 	--print(table.concat(called, ", ") .. " called table")
 	call = bingoSheet[1]
 	table.remove(bingoSheet, 1)
-	return call
+	return a[bingo.round(call/15+.5)] .. call
 end
 
 function bingo.endGame()

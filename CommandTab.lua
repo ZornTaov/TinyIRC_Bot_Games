@@ -215,10 +215,17 @@ function onBingoJoin(server, to, cmd, argv, nuh)
 		end
 	end
 end
-
+timetill = 0
 function onBingoDraw(server, to, cmd, argv, nuh)
 	if string.sub(to, 1, 1) == "#" then
 		if bingo.gameplaying then
+			if os.clock() > timetill then
+				timetill = os.clock() + 10
+			else
+				sec = timetill - os.clock()
+				bot_sendreply(server, to, nuh.nick, "you need to wait " .. bingo.round(sec+.5) .. " more seconds.")
+				return
+			end
 			call = bingo.draw()
 			if call ~= false then
 				bot_sendreply(server, to, nuh.nick, call .. "!")
@@ -248,13 +255,16 @@ end
 function onBingoCheck(server, to, cmd, argv, nuh)
 	--if string.sub(to, 1, 1) == "#" then
 		if bingo.gameplaying then
-			bot_sendreply(server, nuh.nick, nuh.nick, "---------------")
 			card = bingo.showcard(nuh.nick)
-			bot_sendreply(server, nuh.nick, nuh.nick, "B  I  N  G  O")
+			if card == nil then
+				bot_sendreply(server, to, nuh.nick, nuh.nick .. " is not in the game, use !bingo_join")
+			end
+			bot_sendreply(server, nuh.nick, nuh.nick, "---------------")
+			bot_sendreply(server, nuh.nick, nuh.nick, " B  I  N  G  O")
 			for i=1,5 do
 				line = ""
 				for j=1,5 do
-					line = line .. card[j][i] .. " "
+					line = line .. card[j][i]
 				end
 				bot_sendreply(server, nuh.nick, nuh.nick, line)
 			end
